@@ -2,9 +2,11 @@ import { EventEmitter } from 'node:events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import diagnostics from '../../server/gemini-diagnostics.cjs';
 import handlerModule from '../../server/chat-handler.cjs';
+import { ApiError } from '@google/genai';
 
 const { buildGeminiDiagnostic, logGeminiFailure } = diagnostics;
 const { createChatHandler } = handlerModule;
+const emptyDetails = { googleFields: null, googleReasons: null, googleDetailTypes: null };
 const request = (message = 'Pregunta') => ({ method: 'POST', headers: { 'content-type': 'application/json' }, body: { message, history: [] } });
 const response = () => Object.assign(new EventEmitter(), { writeHead: vi.fn(), setHeader: vi.fn(), end: vi.fn() });
 let log;
@@ -26,7 +28,7 @@ describe('Metadatos de Gemini con allowlist', () => {
     expect(log).toHaveBeenCalledTimes(1);
     expect(log.mock.calls[0]).toHaveLength(1);
     const record = JSON.parse(log.mock.calls[0][0]);
-    expect(record).toEqual({ event: 'gemini_failure', errorName: 'ApiError', httpStatus: 403, transportCode: null, googleStatus: 'PERMISSION_DENIED', category: 'authentication_or_permission' });
+    expect(record).toEqual({ event: 'gemini_failure', errorName: 'ApiError', httpStatus: 403, transportCode: null, googleStatus: 'PERMISSION_DENIED', category: 'authentication_or_permission', ...emptyDetails });
     expect(JSON.stringify(log.mock.calls)).not.toMatch(/PRIVATE_|example\.invalid|authorization|apiKey|history|reply|stack/);
   });
 
@@ -42,7 +44,7 @@ describe('Metadatos de Gemini con allowlist', () => {
   it('conserva solo códigos conocidos de transporte de la causa', () => {
     const error = new TypeError('PRIVATE_URL');
     error.cause = { code: 'ECONNRESET', message: 'PRIVATE_HEADER', url: 'PRIVATE_URL' };
-    expect(buildGeminiDiagnostic(error)).toEqual({ event: 'gemini_failure', errorName: 'TypeError', httpStatus: null, transportCode: 'ECONNRESET', googleStatus: null, category: 'transport' });
+    expect(buildGeminiDiagnostic(error)).toEqual({ event: 'gemini_failure', errorName: 'TypeError', httpStatus: null, transportCode: 'ECONNRESET', googleStatus: null, category: 'transport', ...emptyDetails });
     error.cause.code = 'UND_ERR_CONNECT_TIMEOUT';
     expect(buildGeminiDiagnostic(error).category).toBe('timeout_or_abort');
   });
@@ -54,7 +56,7 @@ describe('Metadatos de Gemini con allowlist', () => {
       code: 'ECONNRESET PRIVATE_URL', cause: { code: 'PRIVATE_PROMPT' },
       message: JSON.stringify({ error: { code: 'PRIVATE', status: 'UNAVAILABLE PRIVATE' } }),
     };
-    expect(buildGeminiDiagnostic(error)).toEqual({ event: 'gemini_failure', errorName: 'UnknownError', httpStatus: null, transportCode: null, googleStatus: null, category: 'unknown' });
+    expect(buildGeminiDiagnostic(error)).toEqual({ event: 'gemini_failure', errorName: 'UnknownError', httpStatus: null, transportCode: null, googleStatus: null, category: 'unknown', ...emptyDetails });
   });
 
   it('ignora mensajes extensos, JSON malformado y getters que fallan', () => {
@@ -73,6 +75,86 @@ describe('Metadatos de Gemini con allowlist', () => {
     ['TIMEOUT', 'timeout_or_abort'],
   ])('clasifica el código interno %s sin copiarlo como texto libre', (code, category) => {
     expect(buildGeminiDiagnostic(Object.assign(new Error('PRIVATE'), { code })).category).toBe(category);
+  });
+});
+
+describe('Detalles estructurados del ApiError real, sin red', () => {
+  const apiError = details => new ApiError({ status: 400, message: JSON.stringify({ error: {
+    code: 400, status: 'INVALID_ARGUMENT', message: 'PRIVATE_MESSAGE', details,
+  } }) });
+  const badRequest = fields => ({ '@type': 'type.googleapis.com/google.rpc.BadRequest', fieldViolations: fields.map(field => ({ field, description: 'PRIVATE_DESCRIPTION', reason: 'PRIVATE_REASON' })) });
+  const errorInfo = reason => ({ '@type': 'type.googleapis.com/google.rpc.ErrorInfo', reason, domain: 'PRIVATE_DOMAIN', metadata: { key: 'PRIVATE_KEY', prompt: 'PRIVATE_PROMPT' } });
+
+  it('extrae y normaliza solo campos permitidos de BadRequest, sin indices ni duplicados', () => {
+    logGeminiFailure(apiError([badRequest([
+      'generation_config.response_json_schema', 'generationConfig.responseJsonSchema',
+      'generationConfig.temperature', 'contents[20].parts[0].text', 'contents[2].role',
+      'system_instruction.parts[0].text', 'model',
+    ])]));
+    const record = JSON.parse(log.mock.calls[0][0]);
+    expect(record).toMatchObject({ httpStatus: 400, googleStatus: 'INVALID_ARGUMENT', category: 'request_rejected',
+      googleFields: ['generationConfig.responseJsonSchema', 'generationConfig.temperature', 'contents[].parts[].text', 'contents[].role', 'systemInstruction.parts[].text', 'model'],
+      googleReasons: null, googleDetailTypes: ['BadRequest'] });
+    expect(JSON.stringify(log.mock.calls)).not.toMatch(/PRIVATE|\[20\]/);
+  });
+
+  it('recupera ErrorInfo.reason solo por coincidencia exacta con una lista cerrada', () => {
+    logGeminiFailure(apiError([errorInfo('API_KEY_INVALID'), errorInfo('API_KEY_INVALID'), errorInfo('BILLING_DISABLED')]));
+    expect(JSON.parse(log.mock.calls[0][0])).toMatchObject({ googleReasons: ['API_KEY_INVALID', 'BILLING_DISABLED'], googleFields: null, googleDetailTypes: ['ErrorInfo'] });
+    expect(JSON.stringify(log.mock.calls)).not.toContain('PRIVATE');
+  });
+
+  it.each([undefined, null, [], {}, 'PRIVATE', [{ '@type': 'PRIVATE_TYPE' }]])('usa null cuando no hay detalles estructurados conocidos: %j', details => {
+    expect(buildGeminiDiagnostic(apiError(details))).toMatchObject(emptyDetails);
+  });
+
+  it('no interpreta mensajes libres aunque mencionen campos o razones permitidos', () => {
+    const error = new ApiError({ status: 400, message: 'PRIVATE generationConfig.temperature API_KEY_INVALID' });
+    expect(buildGeminiDiagnostic(error)).toMatchObject(emptyDetails);
+    expect(buildGeminiDiagnostic({ message: '{"error":{"message":"generationConfig.temperature API_KEY_INVALID"}}' })).toMatchObject(emptyDetails);
+  });
+
+  it('rechaza contenido sensible, tipos desconocidos, objetos y sufijos aunque parezcan identificadores', () => {
+    const fields = [
+      'generationConfig.temperature PRIVATE_KEY', 'contents[0].parts[0].text?key=PRIVATE',
+      'contents[0].parts[0].PRIVATE_PROMPT', 'generationConfig.responseJsonSchema.properties.PRIVATE',
+      'https://PRIVATE.invalid', 'PRIVATE_USER_EMAIL', null, {}, ['model'], 'x'.repeat(200),
+    ];
+    const details = [badRequest(fields), errorInfo('API_KEY_INVALID PRIVATE_KEY'), errorInfo('PRIVATE_UPPERCASE_SECRET'),
+      errorInfo({ value: 'API_KEY_INVALID' }), { '@type': 'PRIVATE_TYPE', reason: 'API_KEY_INVALID' },
+      { '@type': 'type.googleapis.com/google.rpc.ErrorInfo PRIVATE', reason: 'API_KEY_INVALID' }];
+    logGeminiFailure(apiError(details));
+    expect(JSON.parse(log.mock.calls[0][0])).toMatchObject({ googleFields: null, googleReasons: null, googleDetailTypes: ['BadRequest', 'ErrorInfo'] });
+    expect(JSON.stringify(log.mock.calls)).not.toMatch(/PRIVATE|https:|description|metadata|domain|prompt/i);
+  });
+
+  it('no recupera campos de un tipo equivocado ni detalles top-level ajenos al JSON del SDK', () => {
+    const error = apiError([{ ...errorInfo('API_KEY_INVALID'), fieldViolations: [{ field: 'model' }] },
+      { ...badRequest([]), reason: 'BILLING_DISABLED' }]);
+    error.details = [badRequest(['generationConfig.temperature'])];
+    expect(buildGeminiDiagnostic(error)).toMatchObject({ googleFields: null, googleReasons: ['API_KEY_INVALID'] });
+  });
+
+  it('limita el trabajo y descarta errores JSON mayores de 16384 caracteres', () => {
+    const details = Array.from({ length: 16 }, () => badRequest([]));
+    details.push(errorInfo('API_KEY_INVALID'));
+    expect(buildGeminiDiagnostic(apiError(details)).googleReasons).toBeNull();
+    expect(buildGeminiDiagnostic(apiError([badRequest([...Array(32).fill('PRIVATE'), 'model'])])).googleFields).toBeNull();
+    const error = apiError([errorInfo('API_KEY_INVALID')]);
+    error.message += ' '.repeat(16385);
+    expect(buildGeminiDiagnostic(error)).toMatchObject(emptyDetails);
+  });
+
+  it('conserva exactamente el HTTP 502 publico y un solo registro para HTTP 400', async () => {
+    const error = apiError([badRequest(['generationConfig.responseJsonSchema']), errorInfo('API_KEY_INVALID')]);
+    const res = response();
+    await createChatHandler({ getProvider: () => ({ generate: vi.fn().mockRejectedValue(error) }) })(request('PRIVATE_USER_MESSAGE'), res);
+    expect(res.writeHead).toHaveBeenCalledWith(502, expect.any(Object));
+    expect(JSON.parse(res.end.mock.calls[0][0])).toEqual({ error: { code: 'UPSTREAM_ERROR', message: 'No se pudo contactar con Gemini. Inténtalo más tarde.' } });
+    expect(log).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(log.mock.calls[0][0])).toMatchObject({ httpStatus: 400, googleFields: ['generationConfig.responseJsonSchema'], googleReasons: ['API_KEY_INVALID'] });
+    expect(JSON.stringify(log.mock.calls)).not.toMatch(/PRIVATE|description|metadata|domain/);
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
 
