@@ -1,0 +1,27 @@
+{
+  "name": "proyecto_integrador_m3",
+  "version": "1.0.0",
+  "description": "Chat ficticio no oficial inspirado en Deadpool, con Gemini y servidor seguro.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node scripts/server.cjs",
+    "dev": "node scripts/server.cjs",
+    "build": "node scripts/build.cjs",
+    "verify:production": "node scripts/verify-production.cjs",
+    "test:api": "node --test tests/chat.test.cjs",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": "24.x"
+  },
+  "dependencies": {
+    "@google/genai": "2.32.0"
+  },
+  "devDependencies": {
+    "vitest": "5.1.0"
+  }
+}

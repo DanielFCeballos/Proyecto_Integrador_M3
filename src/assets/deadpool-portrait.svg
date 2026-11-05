@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" role="img" aria-labelledby="title desc">
+  <title id="title">Deadpool, retrato original no oficial</title>
+  <desc id="desc">Figura estilizada de traje rojo y negro, máscara con ojos blancos y dos empuñaduras a la espalda.</desc>
+  <!-- Independently authored paths. No official illustration, logo, font or photo. -->
+  <defs>
+    <linearGradient id="suit" x2="1" y2="1"><stop stop-color="#ef4659"/><stop offset="1" stop-color="#a91c33"/></linearGradient>
+    <linearGradient id="mask" x2="1"><stop stop-color="#bd233b"/><stop offset=".55" stop-color="#ec4055"/><stop offset="1" stop-color="#aa2036"/></linearGradient>
+  </defs>
+  <g stroke="#0b0b11" stroke-width="8" stroke-linejoin="round">
+    <path fill="#24252d" d="m122 204-67-123 17-10 80 116Zm206-17 80-116 17 10-67 123Z"/>
+    <path fill="none" stroke="#afa5a6" stroke-width="5" d="m64 93 20-9m-12 24 22-10m-12 25 20-10m299-21-20-9m12 24-22-10m12 25-20-10"/>
+    <path fill="#60606a" d="m112 196 31-18 17 23-32 21Zm208 5 17-23 31 18-16 26Z"/>
+    <path fill="url(#suit)" d="M157 203 79 244 47 329l-16 181 57 14 35-140 4 216h226l4-216 35 140 57-14-16-181-32-85-78-41Z"/>
+    <path fill="#1a1a23" d="m80 248 52 20-23 94-58-22Zm320 0-52 20 23 94 58-22ZM131 348l48 20-2 232h-50Zm218 0-48 20 2 232h50Z"/>
+    <path fill="#9c1c32" d="M193 182h94v68l-47 36-47-36Z"/>
+    <path fill="url(#mask)" d="M240 48c-61 0-96 43-92 100l9 65c6 44 45 84 83 84s77-40 83-84l9-65c4-57-31-100-92-100Z"/>
+    <path fill="#17171f" stroke-width="4" d="M169 108c30-6 55 12 64 45l-11 77c-33 9-56-11-60-46Zm142 0c-30-6-55 12-64 45l11 77c33 9 56-11 60-46Z"/>
+    <path fill="#fff7e6" stroke-width="5" d="m175 157 44 20-7 18c-17 4-32-11-37-38Zm130-6-44 26 7 18c17 4 32-15 37-44Z"/>
+    <path fill="none" stroke="#891b30" stroke-width="4" d="M240 65v207m-24-16 24 7 24-7"/>
+    <path fill="#292931" d="m143 255 31-13 145 224-33 20Z"/>
+    <path fill="#55505a" d="m181 320 24-15 22 34-24 15Zm34 52 24-15 22 34-24 15Z"/>
+    <path fill="#292931" d="M123 488h234v46H123Z"/>
+    <path fill="#bbb2ae" d="M215 484h50v54h-50Z"/>
+    <path fill="#16161d" stroke-width="4" d="M230 498h20v26h-20Z"/>
+    <path fill="#16161d" d="m34 477 59 16-6 71-34 13-29-28Zm412 0-59 16 6 71 34 13 29-28Z"/>
+  </g>
+  <g fill="none" stroke="#73182a" stroke-width="4"><path d="m184 373 25 83m87-83-25 83M58 373l-9 87m373-87 9 87"/></g>
+</svg>

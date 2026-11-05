@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Deadpool, interpretación vectorial original no oficial</title>
+  <!-- Original geometry drawn for this project. No traced or embedded artwork. -->
+  <path fill="#15151b" d="M0 0h160v160H0z"/>
+  <path fill="#9d1e32" stroke="#08090e" stroke-width="5" d="M25 160v-36l25-20h60l25 20v36"/>
+  <path fill="#e63b50" stroke="#08090e" stroke-width="5" d="M80 11c-32 0-51 22-49 52l5 35c3 24 24 46 44 46s41-22 44-46l5-35c2-30-17-52-49-52Z"/>
+  <path fill="#b42239" d="M80 14c-30 0-47 22-45 48l5 34c3 22 20 42 40 45Z"/>
+  <path fill="#15151b" d="M41 41c15-4 28 6 34 24l-6 42c-18 5-30-6-32-25Zm78 0c-15-4-28 6-34 24l6 42c18 5 30-6 32-25Z"/>
+  <path fill="#fff7e6" stroke="#08090e" stroke-width="3" stroke-linejoin="round" d="m43 68 24 11-4 10c-9 2-17-6-20-21Zm74-3-24 14 4 10c9 2 17-8 20-24Z"/>
+  <path fill="none" stroke="#841a2a" stroke-width="3" d="M80 21v108m-13-10 13 4 13-4"/>
+  <path fill="#15151b" d="m45 127 23 33H42l-9-20Zm70 0-23 33h26l9-20Z"/>
+</svg>
