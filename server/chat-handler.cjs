@@ -1,4 +1,5 @@
 const { createGeminiProvider } = require('./gemini.cjs');
+const { logGeminiFailure } = require('./gemini-diagnostics.cjs');
 
 const LIMITS = Object.freeze({ message: 1000, modelMessage: 4000, history: 200, historyText: 200000, bodyBytes: 512 * 1024 });
 // Bounded counters per warm instance only; this is not distributed rate limiting.
@@ -85,6 +86,7 @@ function createChatHandler({ getProvider = createGeminiProvider, timeoutMs = 200
     const controller = new AbortController();
     let timer;
     let admitted = false;
+    let providerPending = false;
     const onDisconnect = () => { if (!response.writableEnded) controller.abort(); };
     response.on?.('close', onDisconnect);
     try {
@@ -112,6 +114,7 @@ function createChatHandler({ getProvider = createGeminiProvider, timeoutMs = 200
       acceptedRequests++;
       activeGenerations++;
       admitted = true;
+      providerPending = true;
       const provider = getProvider();
       const deadline = new Promise((_, reject) => {
         timer = setTimeout(() => {
@@ -120,12 +123,14 @@ function createChatHandler({ getProvider = createGeminiProvider, timeoutMs = 200
         }, timeoutMs);
       });
       const result = await Promise.race([provider.generate({ ...body, signal: controller.signal }), deadline]);
+      providerPending = false;
       if (!response.destroyed) sendJson(response, 200, result);
     } catch (error) {
+      if (providerPending) logGeminiFailure(error);
       const safe = publicError(error);
       if (safe.status === 429) response.setHeader('Retry-After', String(safe.retryAfter || 30));
       if (!response.destroyed) sendJson(response, safe.status, { error: { code: safe.code, message: safe.message } });
-      // Never log provider exceptions: they may contain request data or credentials.
+      // Only allowlisted metadata is logged above; never log the original exception.
     } finally {
       if (admitted) activeGenerations--;
       clearTimeout(timer);
