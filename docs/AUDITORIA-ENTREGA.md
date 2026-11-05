@@ -1,4 +1,63 @@
-# Auditoría de entrega · Bloque 13
+# Auditoría de entrega · Estado vigente del Bloque 21
+
+Fecha: 5 de noviembre de 2026, America/Bogota. **Dictamen: APTO CON PENDIENTES para entregar, sin garantía de nivel Excelente.** La aplicación está publicada según la evidencia comunicada por el autor y la integración real ha generado respuestas, pero hay fallos intermitentes sin causa raíz demostrada. Esta revisión no repite llamadas reales ni verifica de nuevo la disponibilidad remota.
+
+Respaldo previo de los tres documentos modificados: `.respaldos/bloque21-20261105-175116/`. No se modificó código funcional, diseño, variables ni configuración de Gemini. Se revisaron la rúbrica original `PI (9)/Rubrica.png` y los textos originales `PI (9)/L9-03_files/GO1Stc_b9u86.html` (Consigna) y `L9-04_files/GO1Stc_b9u86.html` (Entregable Final), en `C:/Users/Daniel Felipe/Desktop/Lecturas_Henry_M3`. Los documentos académicos no se copiaron al repositorio.
+
+## Matriz vigente de los ocho criterios
+
+Los requisitos de esta tabla transcriben la columna «Requerimiento por categoría» de la rúbrica. CUMPLIDO se limita al código, pruebas y capturas identificados; no significa disponibilidad perfecta ni una calificación garantizada. La asociación a lectures se conserva de la auditoría original detallada más abajo.
+
+| Criterio y requisito oficial | Lecture / implementación | Evidencia comprobable | Estado y pendiente para Excelente |
+| --- | --- | --- | --- |
+| 1. «Implementa diseño mobile-first funcional en 3 tamaños (mobile, tablet, desktop) usando Flexbox/Grid y media queries.» | L1. `src/styles.css`, viewport en `src/index.html`; Grid/Flexbox y media queries 768/1024. | Revisión visual actual de Responsive-mobile.png (320), Responsive-tablet.png (768) y Responsive-Destktop.png (1440); QA previa registrada abajo. | **CUMPLIDO en el alcance comprobado.** No se repitió QA dinámica de todos los anchos en este bloque. |
+| 2. «Implementa routing funcional (/home, /chat, /about) sin recarga de página usando History API.» | L2. `router.js`: createRouter/render, pushState/popstate; `main.js`, `views.js`, rewrites de Vercel. | Código, suite API de rutas aprobada y capturas Home/Chat/About; prueba previa back/forward registrada. | **CUMPLIDO localmente.** Comprobar manualmente acceso directo/recarga/back/forward en la URL pública antes de entregar. |
+| 3. «Implementa llamadas asíncronas con async/await, manejo de errores y estados (loading/error).» | L3/L4. `chat-api.js`: requestChatReply; `chat.js`: sendMessage, try/catch/finally, timeout y estados. | `chat-api.test.mjs`, `errors.test.mjs`, pruebas de errores y diagnóstico aprobadas. | **CUMPLIDO en casos probados.** El mensaje público agrupa fallos del proveedor; no identifica por sí solo su causa. |
+| 4. «Integra correctamente Gemini AI mediante envío de mensajes con roles y system prompt bien diseñado.» | L6/L7. `server/character.cjs`, `gemini.cjs`: buildSystemInstruction/generate/parseResponse; `chat.js`: buildHistory/completedTurns. | Tests de historial, roles, prompt y parsing; diagnóstico anterior con SDK real y transporte simulado. Generación autenticada local previa A=200; producción exitosa informada por el autor. | **PARCIAL respecto a Excelente.** Texto completo de turnos exitosos hasta límites explícitos; no se conservan JSON/metadatos originales del SDK. Errores intermitentes 400 sin causa raíz, sin demostrar defecto del historial. |
+| 5. «Implementa Vercel Serverless Function como proxy seguro. No expone API key. Usa variables de entorno correctamente.» | L7/L8. `api/chat.js`, `chat-handler.cjs`, uso de process.env en `gemini.cjs`, .env.example y exclusiones. | 16 tests API, mocks de error y preflight aprobados; dist excluye backend/entorno. Ejecución de función y generación en producción informadas por el autor. | **CUMPLIDO en arquitectura y verificaciones disponibles.** No se inspeccionaron valores privados ni configuración del panel; no se certifica seguridad absoluta o protección distribuida. |
+| 6. «Implementa interfaz de chat completa con diferenciación visual, scroll automático, historial en sesión y manejo de errores.» | L1/L2/L3/L6. `chat.js`: appendMessage/renderState/resetConversation, scrollTop y activeRequest; `views.js`. | Chat-gemini.png e Historial-chat.png; pruebas de estados y diagnóstico previo de reintento/reset sin duplicados con transporte simulado. | **CUMPLIDO en el alcance comprobado.** El historial termina al recargar, permitido por la consigna. La disponibilidad de Gemini afecta la continuidad real. |
+| 7. «Implementa mínimo 4 tests unitarios con mocking cuando corresponda.» | L8. Vitest, setup de mocks, nueve archivos unitarios y suite API separada. | **83 Vitest aprobados ahora**, 16 API adicionales. Vitest.png acredita la ejecución anterior de 48, sin atribuirle el resultado nuevo. | **CUMPLIDO; compatible con Excelente en las funciones probadas.** Actualizar captura es recomendable, no requisito de tener un número específico de tests superior a cuatro. |
+| 8. «Proyecto desplegado en Vercel con README completo y repositorio organizado.» | L8 y PI Entregable. README, docs/USO-IA.md, .env.example, vercel.json, evidencias y repositorio. | origin: https://github.com/DanielFCeballos/Proyecto_Integrador_M3; producción: https://proyectointegradorm3.vercel.app. README actualizado; once PNG revisados, incluido Vercel.png con URL pública y respuesta contextual. | **PARCIAL respecto a Excelente.** Despliegue documentado; comprobar acceso del evaluador y publicación de estos documentos/captura. Persiste la limitación de errores intermitentes; no se acredita funcionamiento perfecto. |
+
+## Resultados actuales y seguridad
+
+| Comando ejecutado en Bloque 21 | Resultado real |
+| --- | --- |
+| `npm.cmd test` | Exit 0: **83 pruebas, nueve archivos** |
+| `npm.cmd run test:api` | Exit 0: **16 pruebas** |
+| `npm.cmd run build` | Exit 0: frontend generado en dist, sin server/api/entorno |
+| `npm.cmd run verify:production` | Exit 0: rutas/configuración, salida pública, exclusiones Git, plantilla y SDK/lockfile correctos |
+
+El script existente se llama `verify:production`; no existe `verify`. No se instalaron dependencias ni se hicieron llamadas a Google en este bloque. Los errores simulados de tests generan metadatos seguros esperados en stderr; no son fallos de la suite. El escaneo de secretos del preflight es limitado; no certifica todos los formatos o el historial completo de Git.
+
+La rama actual es main, con commits y origin configurado. El estado «sin commits ni remoto» de la auditoría histórica inferior quedó superado. Se revisaron git diff y diff --check: solo cambiaron los tres Markdown de este bloque, sin staging. Vercel.png apareció como archivo nuevo aportado por el autor durante la revisión; no fue creada ni alterada por el asistente. No se ejecuta add/commit/push/deploy.
+
+## Evidencias actuales y limitaciones conocidas
+
+Se abrieron visualmente los diez PNG: Home.png, Chat-gemini.png, Historial-chat.png, About.png, About2.png, Responsive-mobile.png, Responsive-tablet.png, Responsive-Destktop.png, Vitest.png y Build.png. Corresponden a vistas, conversación, móvil/tableta/escritorio, Vitest anterior y build correcto. Son capturas locales, no acreditan por sí solas el despliegue ni el origen de una respuesta. No se observaron claves o valores privados legibles; terminales muestran nombre y ruta local. Las capturas responsive conservan un contador de errores cuyo origen no se demuestra; no se les atribuye una causa.
+
+Durante la revisión el autor añadió **Vercel.png**, que se abrió y comprobó: muestra el dominio público, respuesta anterior sobre el origen, referencia documental y respuesta a «y qué pasó después?». Es la undécima imagen y cubre la evidencia de producción; no es necesario renombrarla a 09-vercel.png. No muestra Network ni garantiza el origen de cada respuesta por sí sola, pero complementa el reporte del autor. No se observaron credenciales legibles. No hay captura actual de 83 tests, de verify ni del payload completo del historial; son refuerzos recomendados, no nombres o cantidades impuestos por la rúbrica. Se actualizó el inventario sin tocar imágenes.
+
+Se han observado 400 INVALID_ARGUMENT reales en producción sin detalles estructurados útiles. En el diagnóstico autenticado anterior A sin historial respondió 200 en unos 1,7 s y B con dos intercambios devolvió 503 UNAVAILABLE en unos 1,2 s. Ese 503 identifica indisponibilidad en esa llamada, no explica el 400. No se demostró una causa raíz ni un defecto del historial. No se cambia la solicitud de Gemini por hipótesis.
+
+También apareció Vercel-2.png, aportada por el autor: se abrió y comprobó el estado Listo, dominio productivo y commit 7153a18 en el panel. El inventario final asciende a **doce PNG revisados**. No se observan credenciales legibles; sí identificadores de cuenta/proyecto. Hay un aviso sobre anulación de versión de Node sin detalle: no demuestra un fallo ni justifica cambiar configuración en esta entrega. La tabla anterior registra la primera captura de producción; esta segunda refuerza el criterio 8. Ambas imágenes nuevas siguen sin staging y deben incluirse, junto con la documentación, cuando se autorice publicar.
+
+Los registros actuales del backend conservan únicamente metadatos permitidos, incluidos campos/razones estructurados seguros o null. La afirmación histórica de que no hay diagnóstico quedó superada. El HTTP 502 público permanece genérico. El control de tráfico es por instancia, no autenticación ni límite global de gasto.
+
+## Orden de cierre para entregar hoy
+
+1. Abrir GitHub como evaluador y confirmar acceso; abrir /home, /chat y /about en producción, recargar y probar atrás/adelante. No hacen falta nuevas generaciones para comprobar esas rutas.
+2. Conservar Vercel.png: la captura de producción ya fue aportada y revisada. No hacen falta nuevas generaciones para obtener esa evidencia.
+3. Cuando el autor lo autorice, publicar los cambios documentales revisados y Vercel.png. No se realiza en este bloque. Entregar la URL real del repositorio y el enlace productivo.
+4. Recomendado si queda tiempo: nueva captura de 83 tests y verify; evidencia de request con conversación sintética, sin nuevas llamadas no autorizadas. No sustituir pruebas reales por imágenes inventadas.
+
+Los extras de localStorage, múltiples personajes, timestamps y temas siguen siendo opcionales según la consigna. No se bloquea la entrega por ellos ni se promete Excelente. **Listo para presentar con limitaciones declaradas y pendientes de evidencia/publicación documental; no requiere cambios funcionales especulativos.**
+
+---
+
+# Registro histórico de auditoría · Bloques 13 y 14
+
+Lo que sigue conserva los resultados de esas etapas. Sus referencias a publicación pendiente, 48 tests o ausencia de logs describen el momento original; el estado vigente es el Bloque 21 anterior.
 
 Fecha: 5 de noviembre de 2026, America/Bogota.
 Proyecto: Deadpool / Fuera de viñeta · Proyecto Integrador M3 de SoyHenry.

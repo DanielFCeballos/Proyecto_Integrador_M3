@@ -9,13 +9,13 @@ Proyecto Integrador Módulo 3 de SoyHenry: una SPA para conversar con una repres
 | Elemento | Estado al 5 de noviembre de 2026 |
 | --- | --- |
 | Aplicación y diseño aprobado del Bloque 10 | Implementados; sin cambios visuales en esta auditoría |
-| Pruebas y empaquetado | 48 Vitest y 16 API aprobadas; build y verify correctos |
-| Repositorio GitHub | **Pendiente: URL real no disponible** |
-| Aplicación Vercel | **Pendiente: URL pública y validación remota** |
-| Capturas de entrega | **Pendientes**; consultar [checklist](evidencias/README.md) |
-| Respuestas reales del personaje actual | Evaluación autenticada pendiente; no confundir mocks con Gemini |
+| Pruebas y empaquetado | 83 Vitest y 16 API aprobadas en el Bloque 21; build y verify:production correctos |
+| Repositorio GitHub | [DanielFCeballos/Proyecto_Integrador_M3](https://github.com/DanielFCeballos/Proyecto_Integrador_M3); publicación informada por el autor y origin local coincidente |
+| Aplicación Vercel | [Abrir aplicación](https://proyectointegradorm3.vercel.app); publicada según la comprobación del autor, con errores intermitentes de Gemini |
+| Capturas de entrega | Doce PNG revisados, incluidos Vercel.png con respuesta contextual y Vercel-2.png con despliegue Listo; recomendable actualizar evidencia de tests. [Inventario](evidencias/README.md) |
+| Respuestas reales del personaje actual | Generación real confirmada en un diagnóstico local anterior; producción reportada por el autor. No se ejecutaron llamadas reales durante el Bloque 21 |
 
-La [auditoría final](docs/AUDITORIA-FINAL.md) contiene la matriz de los ocho criterios oficiales, evidencias de código y pendientes. La preparación local no equivale a una entrega ya desplegada.
+La [auditoría de entrega actualizada](docs/AUDITORIA-ENTREGA.md) contiene la matriz vigente de los ocho criterios oficiales, evidencias y limitaciones. Los informes de bloques anteriores conservan sus estados históricos. Dictamen: **APTO CON PENDIENTES**; no se garantiza el nivel Excelente ni disponibilidad continua del proveedor.
 
 ## Personaje, tecnologías y arquitectura
 
@@ -126,7 +126,7 @@ npm.cmd run build
 npm.cmd run verify:production
 ```
 
-- Vitest: **48 pruebas en ocho archivos**; validación, transformación de historial, respuestas, Fetch, personalidad, recursos SVG, errores y límites de tráfico.
+- Vitest: **83 pruebas en nueve archivos**; validación, transformación de historial, respuestas, Fetch, personalidad, recursos SVG, errores, límites de tráfico y privacidad de los diagnósticos.
 - API original: **16 pruebas** de Node.js, conservadas bajo un comando independiente.
 - Los tests de fetch y SDK usan mocks. Los de API levantan HTTP local con proveedor simulado. No cargan .env ni necesitan claves.
 - Build genera solo los archivos públicos. Verify comprueba que dist coincida con src y revisa configuración de rutas, exclusiones y compatibilidad.
@@ -134,16 +134,16 @@ npm.cmd run verify:production
 
 La auditoría verifica el diseño aprobado en Chrome con proveedor simulado a 320, 375, 766, 768, 960, 1024 y 1440 px. Las capturas de QA en .respaldos/ no acreditan respuestas auténticas de Gemini ni reemplazan las capturas de entrega.
 
-## Despliegue futuro en Vercel
+## Despliegue en Vercel
 
-**No se ha desplegado en este bloque.** La opción sin CLI es crear/importar un proyecto en el panel de Vercel desde el repositorio real de GitHub:
+Producción: **https://proyectointegradorm3.vercel.app**. El autor confirmó el despliegue y respuestas reales, con fallos intermitentes. En el Bloque 21 no se redesplegó ni se repitieron llamadas autenticadas. Para reproducir la configuración desde GitHub:
 
 1. Root Directory: raíz del repositorio; Framework: Other.
 2. Node.js 24.x; instalación npm ci; build npm run build; Output Directory dist.
 3. Configurar `GEMINI_API_KEY` y `GEMINI_MODEL` como variables **de servidor** en Production y en Preview/Development solo si se autoriza usar esos entornos. No cambiar sus valores actuales ni configurar PORT.
 4. Revisar el riesgo de acceso público y los límites disponibles en las cuentas antes de activar la publicación.
 5. Cuando se autorice, desplegar y comprobar entrada directa y recarga en /home, /chat y /about. GET /api/chat debe devolver 405 JSON sin consultar Gemini. Una prueba POST real requiere autorización porque usa cuota.
-6. Registrar las URLs reales en este README y completar las evidencias.
+6. Conservar la captura real de producción Vercel.png y comprobar los enlaces antes de entregar.
 
 vercel.json contiene rewrites exactos para las vistas, sin capturar /api/chat. La función está en api/chat.js; no forma parte de dist. La duración máxima configurada es 30 segundos. [Despliegue desde Git](https://vercel.com/docs/git).
 
@@ -159,6 +159,14 @@ vercel --prod
 
 Introducir los valores únicamente en el prompt privado de la herramienta, nunca en argumentos o documentación. Si ya están configurados en el panel, omitir env add. Los comandos publican solo al ejecutarlos; aquí se documentan, no se ejecutan.
 
+## Limitaciones conocidas
+
+Gemini genera respuestas, pero se han observado fallos intermitentes en producción con HTTP 400 `INVALID_ARGUMENT`, transformados por el proxy en HTTP 502 `UPSTREAM_ERROR`. La causa raíz no está demostrada. No se atribuyen automáticamente a un defecto del historial ni a una caída del proveedor.
+
+En un diagnóstico local autenticado anterior, con la misma configuración y mensaje sintético, A sin historial respondió HTTP 200 y B con dos intercambios recibió HTTP 503 `UNAVAILABLE`. Ese resultado acredita una indisponibilidad en esa llamada; no reproduce ni explica el 400 de producción. No hubo más llamadas en esta auditoría.
+
+La interfaz permite reintentar manualmente y reiniciar. Los tests simulados verifican esos flujos, pero no garantizan disponibilidad ni validez factual de cada respuesta real. El historial conserva el texto de los intercambios exitosos hasta los límites explícitos; no conserva la respuesta completa ni los metadatos originales del SDK. Se pierde al recargar. Las referencias deben contrastarse.
+
 ## Uso de IA, fuentes y recursos
 
 El asistente Codex se utilizó para análisis, generación y revisión de código, pruebas, SVG y documentación. Las decisiones aprobadas por el usuario, prompts representativos, impacto y límites de las verificaciones están registrados en [USO-IA.md](docs/USO-IA.md). Gemini es además la IA de conversación en ejecución. No se atribuyen respuestas de mocks al modelo real.
@@ -169,9 +177,11 @@ El diseño del Bloque 10 está aprobado y se conserva intacto. Se utilizan exclu
 
 ## Evidencias y enlaces finales
 
-- Repositorio GitHub: **PENDIENTE — reemplazar con URL real después de publicar**.
-- Aplicación Vercel: **PENDIENTE — reemplazar con URL real después de desplegar y verificar**.
+- Repositorio GitHub: [DanielFCeballos/Proyecto_Integrador_M3](https://github.com/DanielFCeballos/Proyecto_Integrador_M3).
+- Aplicación Vercel: [Deadpool / Fuera de viñeta](https://proyectointegradorm3.vercel.app).
 - Capturas existentes: [Home](evidencias/Home.png), [Chat](evidencias/Chat-gemini.png), [historial visual](evidencias/Historial-chat.png), [About](evidencias/About.png), [créditos de About](evidencias/About2.png), [móvil a 320 px](evidencias/Responsive-mobile.png), [tableta a 768 px](evidencias/Responsive-tablet.png), [escritorio a 1440 px](evidencias/Responsive-Destktop.png), [Vitest](evidencias/Vitest.png) y [build correcto](evidencias/Build.png). [Checklist de capturas](evidencias/README.md).
-- Criterios, resultados y orden de cierre: [AUDITORIA-FINAL.md](docs/AUDITORIA-FINAL.md).
+- Producción: [Vercel.png](evidencias/Vercel.png), añadida por el autor durante el Bloque 21 y revisada; muestra la URL pública y una respuesta contextual, sin acreditar disponibilidad continua.
+- Despliegue: [Vercel-2.png](evidencias/Vercel-2.png), panel de Vercel con estado Listo, dominio y commit 7153a18; no muestra credenciales.
+- Criterios, resultados actuales y orden de cierre: [AUDITORIA-ENTREGA.md](docs/AUDITORIA-ENTREGA.md).
 
-La consigna exige repositorio GitHub y URL pública funcional. Esos entregables siguen pendientes: no basta con que npm start funcione o que las pruebas con mocks pasen.
+La consigna exige entregar el enlace del repositorio GitHub y una URL pública funcional. Ambas URLs están documentadas y la evidencia de producción existe. Antes de enviar, comprobar su acceso como evaluador y publicar estos cambios documentales y Vercel.png únicamente cuando el autor lo autorice. La captura Vitest existente corresponde a 48 pruebas anteriores; el resultado actual comprobado es 83.

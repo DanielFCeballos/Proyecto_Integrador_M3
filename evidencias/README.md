@@ -1,8 +1,24 @@
 # Evidencias reales de entrega
 
-Estado al 5 de noviembre de 2026: esta carpeta contiene únicamente este checklist. **No hay capturas guardadas ni revisadas.** Los resultados de tests están registrados en la auditoría, pero eso no significa que existan sus capturas.
+Estado actualizado en Bloque 21, 5 de noviembre de 2026: **hay doce PNG existentes y revisados visualmente**, incluidas Vercel.png y Vercel-2.png, añadidas por el autor durante la revisión. No se modificaron ni eliminaron imágenes. El inventario siguiente usa los nombres reales; el checklist posterior conserva nombres propuestos, no archivos que deban darse por existentes.
 
-Conservar los archivos de evidencia que ya existan en el futuro; no sobrescribirlos para aparentar otro resultado. Los nombres siguientes constituyen la lista exacta propuesta. Marcar solo después de guardar y revisar el archivo real.
+| Evidencia existente | Criterios / alcance |
+| --- | --- |
+| [Home.png](Home.png) | 1, 2, 8: presentación y CTA en localhost |
+| [Chat-gemini.png](Chat-gemini.png) | 4, 6: pregunta/respuesta y diferenciación; la imagen sola no demuestra el proveedor |
+| [Historial-chat.png](Historial-chat.png) | 4, 6: continuidad visual, no payload completo |
+| [About.png](About.png), [About2.png](About2.png) | 2, 8: proyecto, personaje, créditos y privacidad |
+| [Responsive-mobile.png](Responsive-mobile.png) | 1, 6: viewport de 320 px |
+| [Responsive-tablet.png](Responsive-tablet.png) | 1: viewport de 768 px |
+| [Responsive-Destktop.png](Responsive-Destktop.png) | 1, 6: viewport de 1440 px; nombre original conservado |
+| [Vitest.png](Vitest.png) | 7: ejecución anterior de 48 pruebas en ocho archivos. Ahora pasan 83 en nueve; falta captura nueva |
+| [Build.png](Build.png) | 8: build terminado; no acredita verify |
+| [Vercel.png](Vercel.png) | 4, 5, 8: URL pública y respuesta contextual a una pregunta de seguimiento; no garantiza disponibilidad continua |
+| [Vercel-2.png](Vercel-2.png) | 8: panel con estado Listo, dominio y commit 7153a18; muestra identificadores de cuenta/proyecto, sin credenciales legibles |
+
+**Producción cubierta por Vercel.png:** no hace falta renombrarla a `09-vercel.png`. Pendiente de publicación junto con la documentación, cuando el autor lo autorice. Recomendado: captura actual de Vitest y verify. Una captura del payload puede reforzar el historial, pero no es obligatorio usar los nombres propuestos ni mostrar más de cuatro turnos para cumplir un número impuesto: la rúbrica exige conservar el historial completo de cada request. Usar conversaciones sintéticas y evitar credenciales, encabezados o datos privados. No realizar nuevas llamadas a Gemini sin autorización.
+
+Conservar las evidencias existentes. Las capturas con DevTools muestran un contador de errores sin causa identificada; no se interpreta como prueba de un fallo actual concreto. Las terminales muestran nombre y ruta local. Marcar el checklist solo al guardar y revisar cada archivo propuesto; no equivale al inventario real superior.
 
 ## Capturas de entrega
 
@@ -16,7 +32,7 @@ Conservar los archivos de evidencia que ya existan en el futuro; no sobrescribir
 | [ ] | `05-responsive-movil-320.png` | DevTools en 320 px, chat legible, avatar/cabecera compactos, fondo tenue y sin scroll horizontal | 1, 6 |
 | [ ] | `05b-responsive-tablet-768.png` | Vista en 768 px con dimensiones visibles; adaptación del diseño y presencia visual del personaje | 1 |
 | [ ] | `06-responsive-escritorio-1440.png` | Chat en 1440 px: lateral, fondo, mensajes, formulario e identificación | 1, 6 |
-| [ ] | `07-vitest.png` | Terminal con npm.cmd test y resumen real de 48 pruebas aprobadas en ocho archivos | 7 |
+| [ ] | `07-vitest.png` | Terminal con npm.cmd test y resumen actual real de 83 pruebas aprobadas en nueve archivos | 7 |
 | [ ] | `07b-vitest-mocking.png` | Editor: setup.mjs y un caso de chat-api.test.mjs o gemini-history.test.mjs mostrando mock/cliente inyectado y aserciones | 7 |
 | [ ] | `08-build-verify.png` | Terminal con npm.cmd run build y npm.cmd run verify:production terminados correctamente | 5, 8 |
 | [ ] | `09-vercel.png` | URL pública real en el navegador, chat funcionando y respuesta real de Gemini, después de autorización y despliegue | 4, 5, 8 |
